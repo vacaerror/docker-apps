@@ -1,0 +1,43 @@
+version: 2.1
+jobs:
+  run_tests:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - checkout
+      - run:
+          name: Install npm dependencies
+          command: |
+            npm install --save
+      - run:
+          name: Run Unit Tests
+          command: |
+            ./node_modules/mocha/bin/mocha test/ --reporter mochawesome --reporter-options reportDir=test-results,reportFilename=test-results
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+  
+workflows:
+  build_test:
+    jobs:
+      - run_tests
+      # - build_docker_image
+      # - gke_create_cluster
+      # - gke_deploy_app:
+      #     requires:
+      #       - run_tests
+      #       - build_docker_image
+      #       - gke_create_cluster
+      # - smoketest_gke_deployment:
+      #     requires:
+      #       - gke_deploy_app
+      # - approve-destroy:
+      #     type: approval
+      #     requires:
+      #       - gke_create_cluster
+      #       - gke_deploy_app
+      #       - smoketest_gke_deployment
+      # - gke_destroy_cluster:
+      #     requires:
+      #       - approve-destroy
